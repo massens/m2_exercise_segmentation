@@ -31,12 +31,9 @@ edgeStruct = UGM_makeEdgeStruct(adj,K);
 
 
 % Define edgePot
-
-
+L=(ones(4,4)-eye(4))*lambda(2);
 
 tic
-
-edgePot=[];
-edgeStruct=[];
-
+edgePot = zeros(K,K,edgeStruct.nEdges);
+edgePot = repmat(L,[1 1 edgeStruct.nEdges]);
 toc;

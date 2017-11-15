@@ -6,11 +6,9 @@ im_name='3_12_s.bmp';
 
 % TODO: Update library path
 % Add  library paths
-basedir='~/Desenvolupament/UGM/';
+basedir='UGM';
 addpath(basedir);
-cd UGM
-addpath(genpath(pwd))
-cd ..
+
 
 
 %Set model parameters
@@ -26,21 +24,34 @@ im = imread(im_name);
 
 NumFils = size(im,1);
 NumCols = size(im,2);
-
+NumPixels=NumFils*NumCols;
 %Convert to LAB colors space
 % TODO: Uncomment if you want to work in the LAB space
 %
-% im = RGB2Lab(im);
+im = RGB2Lab(im);
 
 
 
 %Preparing data for GMM fiting
 %
 % TODO: define the unary energy term: data_term
-% nodePot = P( color at pixel 'x' | Cluster color 'c' )  
+% nodePot = P( color at pixel 'x' | Cluster color 'c' ) 
 
+I=double(reshape(im,NumPixels,3));
+% obj=fitgmdist(double(I),K);
+obj=gmdistribution.fit(I,K);
+mu_color=obj.mu;
+Ksigma=obj.Sigma;
+data_term=obj.posterior(I);
 
-nodePot=[];
+%obj.sigma
+nodePot=zeros(NumPixels, K);
+for i=1:NumPixels
+    for j=1:K
+        nodePot(i,j)=(I(i,:)-mu_color(j,:))*inv(Ksigma(:,:,j))*(I(i,:)-mu_color(j,:))';
+    end
+end
+
 
 
 
@@ -62,6 +73,7 @@ if ~isempty(edgePot)
     display('Loopy Belief Propagation'); tic;
     [nodeBelLBP,edgeBelLBP,logZLBP] = UGM_Infer_LBP(nodePot,edgePot,edgeStruct);toc;
     im_lbp = max(nodeBelLBP,[],2);
+    im_lbp= reshape(im_lbp,size(im));
     
     % Max-sum
     display('Max-sum'); tic;
