@@ -43,14 +43,15 @@ obj=gmdistribution.fit(I,K);
 mu_color=obj.mu;
 Ksigma=obj.Sigma;
 data_term=obj.posterior(I);
-
+nodePot=data_term;
+%data_term=obj.pdf(I);
 %obj.sigma
-nodePot=zeros(NumPixels, K);
-for i=1:NumPixels
-    for j=1:K
-        nodePot(i,j)=(I(i,:)-mu_color(j,:))*inv(Ksigma(:,:,j))*(I(i,:)-mu_color(j,:))';
-    end
-end
+%nodePot=zeros(NumPixels, K);
+% for i=1:NumPixels
+%     for j=1:K
+%         nodePot(i,j)=exp((I(i,:)-mu_color(j,:))*inv(Ksigma(:,:,j))*(I(i,:)-mu_color(j,:))');
+%     end
+% end
 
 
 
@@ -66,14 +67,15 @@ disp('create UGM model');
 if ~isempty(edgePot)
 
     % color clustering
-    [~,c] = min(reshape(data_term,[NumFils*NumCols K]),[],2);
+    [~,c] = max(reshape(data_term,[NumFils*NumCols K]),[],2);
     im_c= reshape(mu_color(c,:),size(im));
     
     % Call different UGM inference algorithms
     display('Loopy Belief Propagation'); tic;
     [nodeBelLBP,edgeBelLBP,logZLBP] = UGM_Infer_LBP(nodePot,edgePot,edgeStruct);toc;
-    im_lbp = max(nodeBelLBP,[],2);
-    im_lbp= reshape(im_lbp,size(im));
+    [~,im_lbp] = max(nodeBelLBP,[],2);
+    im_lbp= reshape(mu_color(im_lbp,:),size(im));
+   
     
     % Max-sum
     display('Max-sum'); tic;

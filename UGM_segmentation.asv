@@ -28,7 +28,7 @@ NumPixels=NumFils*NumCols;
 %Convert to LAB colors space
 % TODO: Uncomment if you want to work in the LAB space
 %
-% im = RGB2Lab(im);
+im = RGB2Lab(im);
 
 
 
@@ -48,7 +48,7 @@ data_term=obj.posterior(I);
 nodePot=zeros(NumPixels, K);
 for i=1:NumPixels
     for j=1:K
-        nodePot(i,j)=(I(i,:)-mu_color(:,j)')*inv(Ksigma(:,:,j))*(I(i,:)-mu_color(:,j)')';
+        nodePot(i,j)=(I(i,:)-mu_color(j,:))*inv(Ksigma(:,:,j))*(I(i,:)-mu_color(j,:))';
     end
 end
 
@@ -72,7 +72,8 @@ if ~isempty(edgePot)
     % Call different UGM inference algorithms
     display('Loopy Belief Propagation'); tic;
     [nodeBelLBP,edgeBelLBP,logZLBP] = UGM_Infer_LBP(nodePot,edgePot,edgeStruct);toc;
-    im_lbp = max(nodeBelLBP,[],2);
+    [~,im_lbp] = max(nodeBelLBP,[],2);
+   
     
     % Max-sum
     display('Max-sum'); tic;
